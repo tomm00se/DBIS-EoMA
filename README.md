@@ -55,7 +55,7 @@ Make your changes to the MySQL database
 Export the updated database:
 
 ```bash
-docker exec eoma_mysql_db mysqldump -u root -prootpassword EoMA > Database/EoMA_db.sql
+docker exec eoma_db mysqldump -u root -prootpassword EoMA > Database/EoMA_db.sql
 ```
 
 ### Troubleshooting
