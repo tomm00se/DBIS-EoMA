@@ -21,27 +21,27 @@ The EoMA database is designed to work for managing data that would be used at a 
 
 ### Running the database
 
-2. Clone this repository:
+1. Clone this repository:
 
 ```bash
 git clone https://github.com/your-username/DBIS-EoMA.git
 cd DBIS-EoMA
 ```
 
-3. Start the MySQL database using Docker:
+2. Start the MySQL database using Docker:
 
 ```bash
 docker-compose up -d
 ```
 
-4. Connect to the database:
+3. Connect to the database:
 
 - Host: localhost
 - Port: 3306
 - Database: EoMA
 - Database Password: EoMApassword
 
-5. To stop the database server running:
+4. To stop the database server running:
 
 ```bash
 docker-compose down
