@@ -1,0 +1,73 @@
+import pytest
+import mysql.connector
+
+@pytest.fixture
+def db_connection():
+    conn = mysql.connector.connect(
+        host="localhost",
+        port="3306",
+        database password="EoMApassword",
+        database="EoMA"
+    )
+    yield conn
+    conn.close()
+
+def test_all_committee_lecturers_exist(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM committees c
+        LEFT JOIN lecturers l ON c.lecturer_id = l.id
+        WHERE l.id IS NULL;
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "There are committees with invalid lecturer_id"
+
+def test_all_departments_have_valid_head(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM departments d
+        LEFT JOIN lecturers l ON d.head_id = l.id
+        WHERE d.head_id IS NOT NULL AND l.id IS NULL;
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "There are departments with invalid head_id"
+
+def test_all_courses_have_valid_department(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM courses c
+        LEFT JOIN departments d ON c.department_id = d.id
+        WHERE d.id IS NULL;
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "There are courses with invalid department_id"
+
+def test_enrolment_links_valid_student_and_course(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM enrolment e
+        LEFT JOIN students s ON e.student_id = s.id
+        LEFT JOIN courses c ON e.course_id = c.id
+        WHERE s.id IS NULL OR c.id IS NULL;
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "There are enrolments with invalid student_id or course_id"
+
+def test_all_disciplinary_actions_have_valid_student(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM disciplinaries d
+        LEFT JOIN students s ON d.student_id = s.id
+        WHERE s.id IS NULL;
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "There are disciplinaries with invalid student_id"
+
+def test_courses_have_instructor_if_mandatory(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM courses
+        WHERE is_mandatory = 1 AND (instructor_id IS NULL OR instructor_id NOT IN (SELECT id FROM lecturers));
+    """)
+    result = cursor.fetchone()[0]
+    assert result == 0, "Some mandatory courses lack valid instructors"
