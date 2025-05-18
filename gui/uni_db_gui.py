@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, simpledialog, messagebox
 import mysql.connector
 
+# Function to establish a connection to the MySQL database
+# This assumes docker container is already running with the parameters in the github readme file
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -11,12 +13,18 @@ def connect_db():
         database="EoMA"
     )
 
+# Main application class for the University Database GUI
 class UniversityDBApp:
     def __init__(self, root):
+        # Establish database connection
         self.conn = connect_db()
         self.root = root
-        self.root.title("University Query Interface")
-        self.root.geometry("1000x950")
+
+        # Configure the main window
+        self.root.title("University Query Interface")  # Window title
+        self.root.geometry("1000x950")  # Initial window size
+
+        # List of queries with corresponding functions
         self.query_list = [
             ("Students in a course with a specific lecturer", self.query_students_by_course_and_lecturer),
             ("Final-year students with grade > 70%", self.query_final_year_above_70),
@@ -30,21 +38,25 @@ class UniversityDBApp:
             ("All staff in a department", self.query_all_staff_in_department),
             ("Supervisors in a program", self.query_supervisors_by_program),
         ]
+
+        # Create the GUI widgets
         self.create_widgets()
 
+    # Method to create and configure the GUI widgets
     def create_widgets(self):
         style = ttk.Style()
-        style.theme_use("clam")
+        style.theme_use("clam")  # Use the 'clam' theme
 
-        # Dark Theme Colors
-        dark_bg = "#1e1e1e"
-        mid_bg = "#2d2d2d"
-        highlight = "#007acc"
-        text_fg = "#ffffff"
+        # Define colours for the dark theme
+        dark_bg = "#1e1e1e"  # Background colour
+        mid_bg = "#2d2d2d"   # Mid-tone background for frames
+        highlight = "#007acc"  # Highlight colour (blue)
+        text_fg = "#ffffff"  # Text colour (white)
 
+        # Configure the main window background
         self.root.configure(bg=dark_bg)
 
-        # Custom Rounded Button Style
+        # Configure button styles
         style.element_create("RoundedButton", "from", "clam")
         style.layout("Rounded.TButton", [
             ("Button.border", {"sticky": "nswe", "children": [
@@ -66,29 +78,37 @@ class UniversityDBApp:
             background=[("active", "#005f99")]
         )
 
+        # Configure other widget styles
         style.configure("TFrame", background=mid_bg)
         style.configure("TLabel", background=mid_bg, foreground=text_fg, font=("Segoe UI", 12))
         style.configure("TCombobox", fieldbackground=mid_bg, background=dark_bg, foreground=text_fg)
 
+        # Main frame to hold all widgets
         main_frame = ttk.Frame(self.root, padding=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Title label at the top of the window
         title_label = ttk.Label(main_frame, text="🎓 University Query Interface", font=("Segoe UI", 18, "bold"), foreground=highlight)
         title_label.pack(pady=10)
 
+        # Frame for query buttons
         button_frame = ttk.Frame(main_frame, padding=10)
         button_frame.pack(fill=tk.BOTH, expand=False)
 
+        # Add buttons for each query
         for text, func in self.query_list:
             btn = ttk.Button(button_frame, text=text, command=func, style="Rounded.TButton")
             btn.pack(pady=6, anchor="w", fill=tk.X)
 
+        # Frame for displaying query results
         result_frame = ttk.Frame(main_frame, padding=10)
         result_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Label for the results section
         result_label = ttk.Label(result_frame, text="Query Results:", font=("Segoe UI", 12, "bold"), foreground=highlight)
         result_label.pack(anchor="w", pady=5)
 
+        # Text box to display query results
         self.result_box = tk.Text(
             result_frame,
             wrap=tk.NONE,
@@ -104,6 +124,7 @@ class UniversityDBApp:
         )
         self.result_box.pack(fill=tk.BOTH, expand=True, pady=5)
 
+        # Scrollbars for the results box (both axex)
         scrollbar_y = ttk.Scrollbar(result_frame, orient=tk.VERTICAL, command=self.result_box.yview)
         scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
         self.result_box.configure(yscrollcommand=scrollbar_y.set)
@@ -112,22 +133,28 @@ class UniversityDBApp:
         scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
         self.result_box.configure(xscrollcommand=scrollbar_x.set)
 
+    # Method to execute a query and return results
     def run_query(self, query, params=()):
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         return cursor.fetchall(), [desc[0] for desc in cursor.description]
 
+    # Method to display query results in the results box
     def display_results(self, rows, headers):
-        self.result_box.delete("1.0", tk.END)
+        self.result_box.delete("1.0", tk.END)  # Clear the results box
         if not rows:
             self.result_box.insert(tk.END, "No results found.")
             return
         header_line = " | ".join(headers)
         self.result_box.insert(tk.END, header_line + "\n")
-        self.result_box.insert(tk.END, "-" * len(header_line) + "\n")
+        self.rk.END, "-" * len(header_line) + "\n")
         for row in rows:
             self.result_box.insert(tk.END, " | ".join(map(str, row)) + "\n")
 
+    # Method to create a dropdown pop-up for user input
+    
+    # This allows a sql query to be passed when each button is pushed
+    # so the results can serve as relevant values for the user to select from
     def get_dropdown_value(self, query, label="Select an option"):
         win = tk.Toplevel(self.root)
         win.title("Select")
@@ -165,11 +192,14 @@ class UniversityDBApp:
         win.wait_window()
         return result.get("value")
 
+    # Method to prompt the user for free-text input
     def prompt(self, prompt_text):
         return simpledialog.askstring("Input", prompt_text, parent=self.root)
 
     # ---------- QUERY FUNCTIONS ----------
+    # Each function below corresponds to a specific query in the GUI
 
+    # Query: Students in a course with a specific lecturer
     def query_students_by_course_and_lecturer(self):
         course_id = self.get_dropdown_value(
             "SELECT id, name FROM courses", "Select Course:"
@@ -227,6 +257,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (course_id, lecturer_id))
         self.display_results(rows, headers)
 
+    # Query: Final-year students with mark > 70%
     def query_final_year_above_70(self):
         query = """
             SELECT s.id, s.name, s.email, s.grade
@@ -236,8 +267,12 @@ class UniversityDBApp:
         rows, headers = self.run_query(query)
         self.display_results(rows, headers)
 
+    # Query: Students not registered this semester
     def query_unenrolled_students(self):
-        semester = self.prompt("Enter semester:")
+        semester = self.get_dropdown_value(
+            "SELECT DISTINCT semester, semester FROM enrolment ORDER BY semester",
+            "Select Semester:"
+        )
         if not semester:
             return
         query = """
@@ -252,8 +287,14 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (semester,))
         self.display_results(rows, headers)
 
+
+    # Query: Faculty advisor contact info
     def query_faculty_advisor(self):
-        student_id = self.prompt("Enter student ID:")
+        student_id = self.get_dropdown_value(
+            "SELECT id, name FROM students ORDER BY name",
+            "Select Student:"
+        )
+
         if not student_id:
             return
         query = """
@@ -265,8 +306,17 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (student_id,))
         self.display_results(rows, headers)
 
+    # Query: Lecturers by research/expertise
     def query_lecturers_by_expertise(self):
-        keyword = self.prompt("Enter expertise or research interest keyword:")
+        keyword = self.get_dropdown_value(
+            """
+            SELECT DISTINCT expertise, expertise FROM lecturers
+            UNION
+            SELECT DISTINCT research_interests, research_interests FROM lecturers
+            """,
+            "Select Expertise/Interest:"
+        )
+        like_pattern = f"%{keyword}%"
         if not keyword:
             return
         like_pattern = f"%{keyword}%"
@@ -278,6 +328,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (like_pattern, like_pattern))
         self.display_results(rows, headers)
 
+    # Query: Courses by department
     def query_courses_by_department(self):
         department_id = self.get_dropdown_value(
             "SELECT id, name FROM departments", "Select Department:"
@@ -295,6 +346,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (department_id,))
         self.display_results(rows, headers)
 
+    # Query: Lecturers supervising most research projects
     def query_top_research_supervisors(self):
         query = """
             SELECT l.id, l.name, COUNT(r.id) as project_count
@@ -306,6 +358,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query)
         self.display_results(rows, headers)
 
+    # Query: Lecturer publications in 2024
     def query_recent_publications(self):
         query = """
             SELECT l.id, l.name, l.publications
@@ -315,6 +368,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query)
         self.display_results(rows, headers)
 
+    # Query: Students advised by a lecturer
     def query_students_by_advisor(self):
         lecturer_id = self.get_dropdown_value(
             "SELECT id, name FROM lecturers", "Select Lecturer:"
@@ -329,6 +383,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (lecturer_id,))
         self.display_results(rows, headers)
 
+    # Query: All staff in a department
     def query_all_staff_in_department(self):
         department_id = self.get_dropdown_value(
             "SELECT id, name FROM departments", "Select Department:"
@@ -347,6 +402,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (department_id, department_id))
         self.display_results(rows, headers)
 
+    # Query: Supervisors in a program
     def query_supervisors_by_program(self):
         program_id = self.get_dropdown_value(
             "SELECT id, name FROM programs", "Select Program:"
@@ -374,7 +430,7 @@ class UniversityDBApp:
         rows, headers = self.run_query(query, (program_id,))
         self.display_results(rows, headers)
 
-# Start the app
+# Start the application
 root = tk.Tk()
 app = UniversityDBApp(root)
 root.mainloop()
