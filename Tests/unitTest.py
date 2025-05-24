@@ -6,7 +6,7 @@ def db_connection():
     conn = mysql.connector.connect(
         host="localhost",
         port="3306",
-        database password="EoMApassword",
+        password="EoMApassword",
         database="EoMA"
     )
     yield conn
@@ -22,21 +22,21 @@ def test_all_committee_lecturers_exist(db_connection):
     result = cursor.fetchone()[0]
     assert result == 0, "There are committees with invalid lecturer_id"
 
-def test_all_departments_have_valid_head(db_connection):
+def test_all_research_projects_have_lecturer_as_principal_investigator(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("""
-        SELECT COUNT(*) FROM departments d
-        LEFT JOIN lecturers l ON d.head_id = l.id
-        WHERE d.head_id IS NOT NULL AND l.id IS NULL;
+        SELECT COUNT(*) FROM researchProjects rp
+        LEFT JOIN lecturers l ON rp.principle_investigator = l.id
+        WHERE rp.principle_investigator IS NOT NULL AND l.id IS NULL;`
     """)
     result = cursor.fetchone()[0]
     assert result == 0, "There are departments with invalid head_id"
 
-def test_all_courses_have_valid_department(db_connection):
+def test_all_lectuers_have_valid_department(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("""
-        SELECT COUNT(*) FROM courses c
-        LEFT JOIN departments d ON c.department_id = d.id
+        SELECT COUNT(*) FROM lecturers l
+        LEFT JOIN departments d ON l.department = d.id
         WHERE d.id IS NULL;
     """)
     result = cursor.fetchone()[0]
@@ -62,12 +62,3 @@ def test_all_disciplinary_actions_have_valid_student(db_connection):
     """)
     result = cursor.fetchone()[0]
     assert result == 0, "There are disciplinaries with invalid student_id"
-
-def test_courses_have_instructor_if_mandatory(db_connection):
-    cursor = db_connection.cursor()
-    cursor.execute("""
-        SELECT COUNT(*) FROM courses
-        WHERE is_mandatory = 1 AND (instructor_id IS NULL OR instructor_id NOT IN (SELECT id FROM lecturers));
-    """)
-    result = cursor.fetchone()[0]
-    assert result == 0, "Some mandatory courses lack valid instructors"

@@ -2,8 +2,7 @@
 --
 -- Host: 127.0.0.1    Database: EoMA
 -- ------------------------------------------------------
--- Server version	9.3.0
-
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,10 +25,10 @@ DROP TABLE IF EXISTS `committees`;
 CREATE TABLE `committees` (
   `id` int NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `lectuer_id` int DEFAULT NULL,
+  `lecturer_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `lectuer_id` (`lectuer_id`),
-  CONSTRAINT `committees_ibfk_1` FOREIGN KEY (`lectuer_id`) REFERENCES `lecturers` (`id`)
+  KEY `lectuer_id` (`lecturer_id`),
+  CONSTRAINT `committees_ibfk_1` FOREIGN KEY (`lecturer_id`) REFERENCES `lecturers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -420,4 +419,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-09 23:19:05
+-- Dump completed on 2025-05-24 13:14:20
