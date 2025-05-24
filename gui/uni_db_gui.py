@@ -3,11 +3,11 @@ from tkinter import ttk, simpledialog, messagebox
 import mysql.connector
 
 # Function to establish a connection to the MySQL database
-# This assumes docker container is already running with the parameters in the github readme file
+# This assumes docker container is already running with the parameters in the GitHub readme file
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
-        port=3306,
+        port=3307,
         user="root",
         password="EoMApassword",
         database="EoMA"
@@ -15,10 +15,11 @@ def connect_db():
 
 # Main application class for the University Database GUI
 class UniversityDBApp:
-    def __init__(self, root):
+    def __init__(self, master):
         # Establish database connection
         self.conn = connect_db()
-        self.root = root
+        self.root = master
+        self.result_box = None
 
         # Configure the main window
         self.root.title("University Query Interface")  # Window title
@@ -124,7 +125,7 @@ class UniversityDBApp:
         )
         self.result_box.pack(fill=tk.BOTH, expand=True, pady=5)
 
-        # Scrollbars for the results box (both axex)
+        # Scrollbars for the results box (both axes)
         scrollbar_y = ttk.Scrollbar(result_frame, orient=tk.VERTICAL, command=self.result_box.yview)
         scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
         self.result_box.configure(yscrollcommand=scrollbar_y.set)
@@ -147,13 +148,13 @@ class UniversityDBApp:
             return
         header_line = " | ".join(headers)
         self.result_box.insert(tk.END, header_line + "\n")
-        self.rk.END, "-" * len(header_line) + "\n")
+        self.result_box.insert(tk.END, "-" * len(header_line) + "\n")
         for row in rows:
             self.result_box.insert(tk.END, " | ".join(map(str, row)) + "\n")
 
     # Method to create a dropdown pop-up for user input
     
-    # This allows a sql query to be passed when each button is pushed
+    # This allows a SQL query to be passed when each button is pushed
     # so the results can serve as relevant values for the user to select from
     def get_dropdown_value(self, query, label="Select an option"):
         win = tk.Toplevel(self.root)
@@ -316,7 +317,7 @@ class UniversityDBApp:
             """,
             "Select Expertise/Interest:"
         )
-        like_pattern = f"%{keyword}%"
+        """like_pattern = f"%{keyword}%"""""
         if not keyword:
             return
         like_pattern = f"%{keyword}%"
@@ -343,6 +344,7 @@ class UniversityDBApp:
             WHERE l.department = %s
             GROUP BY c.id, c.name, c.description, c.level, c.credits
         """
+    
         rows, headers = self.run_query(query, (department_id,))
         self.display_results(rows, headers)
 
