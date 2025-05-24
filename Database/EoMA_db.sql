@@ -60,7 +60,10 @@ CREATE TABLE `courses` (
   `lecturers` varchar(255) DEFAULT NULL,
   `enrolled_students` varchar(255) DEFAULT NULL,
   `materials` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `department_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_department_id` (`department_id`),
+  CONSTRAINT `fk_department_id` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -70,7 +73,7 @@ CREATE TABLE `courses` (
 
 LOCK TABLES `courses` WRITE;
 /*!40000 ALTER TABLE `courses` DISABLE KEYS */;
-INSERT INTO `courses` VALUES (1,'Introduction to Programming','Basic programming concepts and algorithms','Undergraduate','3','None','Mon, Wed 10:00-11:30','Dr. John Smith','25','Textbook: Programming Fundamentals'),(2,'Advanced Data Structures','Complex data structures and algorithms','Undergraduate','3','Introduction to Programming','Tue, Thu 13:00-14:30','Dr. Sarah Johnson','20','Textbook: Advanced Algorithms'),(3,'Calculus I','Introduction to differential and integral calculus','Undergraduate','4','None','Mon, Wed, Fri 9:00-10:00','Dr. Michael Wong','30','Textbook: Calculus Made Simple'),(4,'Statistical Methods','Introduction to statistical analysis and probability','Undergraduate','3','Calculus I','Tue, Thu 10:30-12:00','Dr. Emily Chen','25','Textbook: Statistics for Beginners'),(5,'Principles of Management','Fundamentals of business management','Undergraduate','3','None','Mon, Wed 14:00-15:30','Dr. Robert Taylor','35','Textbook: Management Essentials'),(6,'Financial Accounting','Basics of accounting principles','Undergraduate','3','None','Tue, Thu 9:00-10:30','Dr. Jessica Brown','30','Textbook: Accounting Fundamentals'),(7,'Introduction to Literature','Overview of literary forms and analysis','Undergraduate','3','None','Mon, Wed 11:00-12:30','Dr. David Wilson','25','Textbook: Literary Analysis'),(8,'Poetry and Prose','Analysis of poetic forms and prose styles','Undergraduate','3','Introduction to Literature','Tue, Thu 15:00-16:30','Dr. Amanda Lee','20','Textbook: Understanding Poetry'),(9,'Physics I','Introduction to mechanics and thermodynamics','Undergraduate','4','None','Mon, Wed, Fri 13:00-14:00','Dr. Richard Miller','25','Textbook: Fundamentals of Physics'),(10,'Astrophysics','Study of celestial objects and phenomena','Undergraduate','3','Physics I','Tue, Thu 16:00-17:30','Dr. Laura Davis','15','Textbook: Exploring the Cosmos');
+INSERT INTO `courses` VALUES (1,'Introduction to Programming','Basic programming concepts and algorithms','Undergraduate','3','None','Mon, Wed 10:00-11:30','Dr. John Smith','25','Textbook: Programming Fundamentals',1),(2,'Advanced Data Structures','Complex data structures and algorithms','Undergraduate','3','Introduction to Programming','Tue, Thu 13:00-14:30','Dr. Sarah Johnson','20','Textbook: Advanced Algorithms',1),(3,'Calculus I','Introduction to differential and integral calculus','Undergraduate','4','None','Mon, Wed, Fri 9:00-10:00','Dr. Michael Wong','30','Textbook: Calculus Made Simple',2),(4,'Statistical Methods','Introduction to statistical analysis and probability','Undergraduate','3','Calculus I','Tue, Thu 10:30-12:00','Dr. Emily Chen','25','Textbook: Statistics for Beginners',2),(5,'Principles of Management','Fundamentals of business management','Undergraduate','3','None','Mon, Wed 14:00-15:30','Dr. Robert Taylor','35','Textbook: Management Essentials',3),(6,'Financial Accounting','Basics of accounting principles','Undergraduate','3','None','Tue, Thu 9:00-10:30','Dr. Jessica Brown','30','Textbook: Accounting Fundamentals',3),(7,'Introduction to Literature','Overview of literary forms and analysis','Undergraduate','3','None','Mon, Wed 11:00-12:30','Dr. David Wilson','25','Textbook: Literary Analysis',4),(8,'Poetry and Prose','Analysis of poetic forms and prose styles','Undergraduate','3','Introduction to Literature','Tue, Thu 15:00-16:30','Dr. Amanda Lee','20','Textbook: Understanding Poetry',4),(9,'Physics I','Introduction to mechanics and thermodynamics','Undergraduate','4','None','Mon, Wed, Fri 13:00-14:00','Dr. Richard Miller','25','Textbook: Fundamentals of Physics',5),(10,'Astrophysics','Study of celestial objects and phenomena','Undergraduate','3','Physics I','Tue, Thu 16:00-17:30','Dr. Laura Davis','15','Textbook: Exploring the Cosmos',5);
 /*!40000 ALTER TABLE `courses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,7 +89,6 @@ CREATE TABLE `departments` (
   `name` varchar(255) DEFAULT NULL,
   `faculty` varchar(255) DEFAULT NULL,
   `research_areas` varchar(255) DEFAULT NULL,
-  `offered_courses` varchar(255) DEFAULT NULL,
   `staff_members` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -98,7 +100,7 @@ CREATE TABLE `departments` (
 
 LOCK TABLES `departments` WRITE;
 /*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` VALUES (1,'Computer Science','Faculty of Science','AI, Data Science, Cybersecurity','CS101, CS202, CS303','John Smith, Sarah Johnson'),(2,'Mathematics','Faculty of Science','Pure Mathematics, Applied Mathematics, Statistics','MATH101, MATH202, STAT303','Michael Wong, Emily Chen'),(3,'Business Administration','Faculty of Business','Marketing, Finance, Management','BUS101, FIN202, MKT303','Robert Taylor, Jessica Brown'),(4,'English Literature','Faculty of Arts','Modern Literature, Classical Literature, Poetry','ENG101, ENG202, LIT303','David Wilson, Amanda Lee'),(5,'Physics','Faculty of Science','Quantum Physics, Astrophysics, Theoretical Physics','PHY101, PHY202, AST303','Richard Miller, Laura Davis');
+INSERT INTO `departments` VALUES (1,'Computer Science','Faculty of Science','AI, Data Science, Cybersecurity','John Smith, Sarah Johnson'),(2,'Mathematics','Faculty of Science','Pure Mathematics, Applied Mathematics, Statistics','Michael Wong, Emily Chen'),(3,'Business Administration','Faculty of Business','Marketing, Finance, Management','Robert Taylor, Jessica Brown'),(4,'English Literature','Faculty of Arts','Modern Literature, Classical Literature, Poetry','David Wilson, Amanda Lee'),(5,'Physics','Faculty of Science','Quantum Physics, Astrophysics, Theoretical Physics','Richard Miller, Laura Davis');
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -362,12 +364,12 @@ CREATE TABLE `students` (
   `year_of_study` int DEFAULT NULL,
   `grade` int DEFAULT NULL,
   `graduation_status` varchar(255) DEFAULT NULL,
-  `student_organiation` int DEFAULT NULL,
+  `student_organisation` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `advised_by` (`advised_by`),
-  KEY `student_organiation` (`student_organiation`),
+  KEY `student_organisation` (`student_organisation`),
   CONSTRAINT `students_ibfk_1` FOREIGN KEY (`advised_by`) REFERENCES `lecturers` (`id`),
-  CONSTRAINT `students_ibfk_2` FOREIGN KEY (`student_organiation`) REFERENCES `studentOrgs` (`id`)
+  CONSTRAINT `students_ibfk_2` FOREIGN KEY (`student_organisation`) REFERENCES `studentOrgs` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -419,4 +421,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-24 13:14:20
+-- Dump completed on 2025-05-24 13:31:40
