@@ -18,15 +18,21 @@ The EoMA database is designed to work for managing data that would be used at a 
 
 - Docker installed on your computer. -> [Docker Download](https://www.docker.com/get-started/)
 - Git installed on your computer. -> [Git Download](https://git-scm.com/downloads)
+- Install packages from requirements.txt using this CLI command:
+
+```bash
+pip install -r requirements.txt
+```
 
 ### Running the database
 
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/DBIS-EoMA.git
+git clone https://github.com/[your-username]/DBIS-EoMA.git
 cd DBIS-EoMA
 ```
+Ensuring you replace the section in the URL with your GitHub username.
 
 2. Start the MySQL database using Docker:
 
@@ -47,7 +53,7 @@ docker-compose up -d
 docker-compose down
 ```
 
-### For Development
+### Database Development
 
 If you need to make changes to the database schema or data:
 
@@ -56,6 +62,34 @@ Export the updated database:
 
 ```bash
 docker exec eoma_db mysqldump -u root -prootpassword EoMA > Database/EoMA_db.sql
+```
+
+### GUI Development
+
+To run the GUI via CLI, ensure you are in the project root directory and run:
+
+```bash
+python gui/uni_db_gui.py
+```
+
+### Testing
+
+To run the test file, found in:
+
+```bash
+Tests/unitTest.py
+```
+
+Ensure your docker/MySQL instance is running which can be done by running:
+
+```bash
+docker compose up -d
+```
+
+Then you can run the test file from the project root by running:
+
+```bash
+pytest Tests/unitTest.py
 ```
 
 ### Troubleshooting
